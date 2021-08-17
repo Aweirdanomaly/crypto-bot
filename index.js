@@ -1,8 +1,9 @@
 const Discord = require("discord.js")
-const client = new Discord.Client();
+const data = require("./vars.json")
 const KeepAlive = require("./server")
-const data = require("./vars")
-const prefix = "$"
+
+const client = new Discord.Client();
+const prefix = data.PREFIX
 
 let logs = "true"; //I swear this is not a mistake. I know it's a string
 let timeServer = {};
@@ -57,7 +58,12 @@ function toClock(time) {
 
 
 
-
+function Looper() {
+    timeCheck()
+  if (already_started) {
+      setTimeout(Looper, 1000*1);
+  }
+}
 
 
 
@@ -91,7 +97,7 @@ for (x=0;x<channels.length;x++){
 }
 
 if (logs === "true"){
-console.log(timeouts, logs, channels, Date().toLocaleTimeString())
+console.log(timeouts, new Date().toLocaleTimeString())
 }
 for (let key in timeServer){
  if (timeServer[key][1] == "true"){
@@ -145,7 +151,7 @@ client.on("message", msg => {
     else{
       msg.reply("Starting crypto bot...")
       already_started = true;
-      let ups = setInterval(timeCheck, (1000*1))
+      Looper()
      
       
     }
