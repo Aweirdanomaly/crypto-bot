@@ -27,6 +27,7 @@ ${(":rocket:").repeat(20)}
 `)
 
 const ethers = require('ethers');
+const { setTimeout } = require("timers");
 const addresses = {
     factory: '0xcA143Ce32Fe78f1f7019d7d551a6402fC5350c73',
     router: '0x10ED43C718714eb63d5aA57B78B54704E256024E',
@@ -66,7 +67,43 @@ function Looper() {
 }
 
 
+async function unbreak() {
 
+  let timeChannel = [];
+  //$include discord channels
+    const p1 = client.channels.fetch(data.freeID)
+    const p2 = client.channels.fetch(data.regularID)
+    const p3 = client.channels.fetch(data.premiumID)
+    const p4 = client.channels.fetch(data.timeID)
+  
+
+  Promise.all([p1, p2, p3, p4]).then((messages) => {
+    addChannel(messages[0], 120)
+    addChannel(messages[1], 30)
+    addChannel(messages[2], 0)
+    timeouts[messages[2].name] = 0
+    //get message from ID
+    const p5 = messages[3].messages.fetch(data.timeMsgID)
+    
+    p5.then((p5out) => { timeChannel = [messages[3],p5out]})
+    //sendMessage(messages[3], true)
+
+   //$time true formatted as: timeServer[message.channel] = [message, bool]
+   // p5.then((output) => { timeServer[output.channel] = [output, true]}).then((out2)=>{console.log("weewee", out2)})
+    
+  }).finally(() => {
+
+  //$start
+  setTimeout(() => {already_started = true
+  Looper()
+  console.log("test", timeServer, timeChannel)
+  sendMessage(timeChannel[0], true)}, 5000)
+  
+  })
+
+
+
+}
 
 function addChannel(channel, delay) {
   let temp = new Object();
@@ -114,13 +151,14 @@ ${require('util').inspect(timeouts)}
 
 async function sendMessage(channel, boolean){
   
-  const message = channel.send("Starting Timer...be patient")
-  .then(function(message){timeServer[message.channel] = [message, boolean]});
+  const p1 = channel.send("Starting Timer...be patient")
+  p1.then(function(message){timeServer[message.channel] = [message, boolean]});
 }
 
 
-client.on("ready", () => {
+client.on("ready", async () => {
   console.log(`Logged in as ${client.user.tag}!`)
+  if (already_started == false) { await unbreak();}
 
 })
 
@@ -253,7 +291,7 @@ client.on("message", msg => {
   }
 })
 
- factory.on('PairCreated', async (token0, token1, pairAddress) => {
+factory.on('PairCreated', async (token0, token1, pairAddress) => {
           try{
 
             let tradeTo, tradeFrom;
@@ -271,11 +309,10 @@ client.on("message", msg => {
             console.log(`
             ${token0}
             ${token1}
-            ${tokenAddress}`)
+            ${pairAddress}`)
             //Called fake function to skip rest of try block
             nonExistentFunction();
           }
-
 
           coins = (`
           ${emoji.repeat(20)}
