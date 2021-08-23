@@ -34,7 +34,7 @@ const addresses = {
     wbnb: '0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c'
 }
 //Ankr url
-const provider = new ethers.providers.WebSocketProvider('wss://apis.ankr.com/wss/88f9bc8bf08d4b43a0033dcbf44541b9/64c2969dbc3ef004404d5a54b72e3431/binance/full/main');
+const provider = new ethers.providers.WebSocketProvider('wss://apis.ankr.com/wss/85053699fe0d4f38a89283ed9b103def/64c2969dbc3ef004404d5a54b72e3431/binance/full/main');
 const factory = new ethers.Contract(
     addresses.factory,
     ['event PairCreated(address indexed token0, address indexed token1, address pair, uint)'],
@@ -66,6 +66,14 @@ function Looper() {
   }
 }
 
+async function sendMessage(channel, boolean){
+  
+  const p1 = channel.send("Starting Timer...be patient")
+  p1.then(function (message) {
+    //console.log("weenus", message);
+    timeServer[message.channel] = [message, boolean]
+  });
+}
 
 async function unbreak() {
 
@@ -74,31 +82,32 @@ async function unbreak() {
     const p1 = client.channels.fetch(data.freeID)
     const p2 = client.channels.fetch(data.regularID)
     const p3 = client.channels.fetch(data.premiumID)
-    const p4 = client.channels.fetch(data.timeID)
+  const p4 = client.channels.fetch(data.timeID)
+  const outChannel = client.channels.fetch(data.outages)
   
 
-  Promise.all([p1, p2, p3, p4]).then((messages) => {
+  Promise.all([p1, p2, p3, p4, outChannel]).then((messages) => {
     addChannel(messages[0], 120)
     addChannel(messages[1], 30)
     addChannel(messages[2], 0)
     timeouts[messages[2].name] = 0
+    messages[4].send(`Program Restarted at ${require('util').inspect(new Date().toLocaleString('en-US', { timeZone: 'America/New_York' }))}`)
     //get message from ID
-    const p5 = messages[3].messages.fetch(data.timeMsgID)
-    
-    p5.then((p5out) => { timeChannel = [messages[3],p5out]})
     //sendMessage(messages[3], true)
-
+    const p5 = messages[3].messages.fetch(data.timeMsgID)
    //$time true formatted as: timeServer[message.channel] = [message, bool]
-   // p5.then((output) => { timeServer[output.channel] = [output, true]}).then((out2)=>{console.log("weewee", out2)})
+    p5.then((output) => {
+      timeServer[output.channel] = [output, true]
+    })
+
+    
     
   }).finally(() => {
 
   //$start
-  setTimeout(() => {already_started = true
+  already_started = true
   Looper()
-  console.log("test", timeServer, timeChannel)
-  sendMessage(timeChannel[0], true)}, 5000)
-  
+  //console.log("test", timeServer, timeChannel)
   })
 
 
@@ -133,27 +142,23 @@ for (x=0;x<channels.length;x++){
   }
 }
 
-if (logs === "true"){
+if (logs === "true" || logs){
 console.log(timeouts, new Date().toLocaleTimeString())
 }
-for (let key in timeServer){
- if (timeServer[key][1] == "true"){
+  for (let key in timeServer) {
+ if (timeServer[key][1]|| timeServer[key][1] == "true"){
 
 let temp =timeServer[key][0]
 temp.edit(`Time left until next alerts:
 ${require('util').inspect(timeouts)}
-(Only updates every 5 seconds due to Discord API)`)
+Last updated at ${(new Date().toLocaleTimeString())} (GMT) ${(new Date().toLocaleTimeString('en-US', { timeZone: 'America/New_York' }))} (EST)
+(Only updates every 5 seconds due to Discord API throttling)`)
 
-   
  }}
 }
 
 
-async function sendMessage(channel, boolean){
-  
-  const p1 = channel.send("Starting Timer...be patient")
-  p1.then(function(message){timeServer[message.channel] = [message, boolean]});
-}
+
 
 
 client.on("ready", async () => {
@@ -318,8 +323,8 @@ factory.on('PairCreated', async (token0, token1, pairAddress) => {
           ${emoji.repeat(20)}
           New pair detected
           =================
-          Time: ${(new Date().toLocaleTimeString())} (GMT)
-          BNB: ${tradeFrom}
+          Time: ${(new Date().toLocaleTimeString())} (GMT) ${(new Date().toLocaleTimeString('en-US', { timeZone: 'America/New_York' }))} (EST)
+          WBNB: ${tradeFrom}
           New Coin: ${tradeTo}
           pairAddress: ${pairAddress}
 
