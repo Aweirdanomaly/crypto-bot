@@ -1,8 +1,9 @@
 const Discord = require("discord.js")
+const data = require("./vars.json")
 const KeepAlive = require("./server")
 
 const client = new Discord.Client();
-const prefix = process.env['PREFIX']
+const prefix = data.PREFIX
 
 let logs = "true"; //I swear this is not a mistake. I know it's a string
 let timeServer = {};
@@ -78,11 +79,11 @@ async function unbreak() {
 
   let timeChannel = [];
   //$include discord channels
-    const p1 = client.channels.fetch(process.env['freeID'])
-    const p2 = client.channels.fetch(process.env['regularID'])
-    const p3 = client.channels.fetch(process.env['premiumID'])
-    const p4 = client.channels.fetch(process.env['timeID'])
-  const outChannel = client.channels.fetch(process.env['outages'])
+    const p1 = client.channels.fetch(data.freeID)
+    const p2 = client.channels.fetch(data.regularID)
+    const p3 = client.channels.fetch(data.premiumID)
+  const p4 = client.channels.fetch(data.timeID)
+  const outChannel = client.channels.fetch(data.outages)
   
 
   Promise.all([p1, p2, p3, p4, outChannel]).then((messages) => {
@@ -93,7 +94,7 @@ async function unbreak() {
     messages[4].send(`Program Restarted at ${require('util').inspect(new Date().toLocaleString('en-US', { timeZone: 'America/New_York' }))}`)
     //get message from ID
     //sendMessage(messages[3], true)
-    const p5 = messages[3].messages.fetch(process.env['timeMsgID'])
+    const p5 = messages[3].messages.fetch(data.timeMsgID)
    //$time true formatted as: timeServer[message.channel] = [message, bool]
     p5.then((output) => {
       timeServer[output.channel] = [output, true]
@@ -106,6 +107,7 @@ async function unbreak() {
   //$start
   already_started = true
   Looper()
+  //console.log("test", timeServer, timeChannel)
   })
 
 
@@ -353,4 +355,4 @@ factory.on('PairCreated', async (token0, token1, pairAddress) => {
 });
 
 KeepAlive()
-client.login(process.env['DISCORD_TOKEN'])
+client.login(data.DISCORD_TOKEN)
