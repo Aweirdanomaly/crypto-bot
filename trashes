@@ -1,0 +1,30 @@
+//this function shouldn't exist, but the bot keeps crashing and I still haven't figured out why
+
+function defaultLoadout() {
+  //include free 120
+  addChannel(client.channels.fetch('871678965369155584'), 120);
+  //include normal 30
+  addChannel(client.channels.fetch('871680692050857984'), 30);
+  //include premium 0
+  addChannel(client.channels.fetch('871680728209973299'), 0)
+  //time true
+  timeServer[client.messages.fetch("874366605461688320").channel] = [msg.channel.messages.fetch("874366605461688320"), true]
+  //start
+  already_started = true;
+  let ups = setInterval(timeCheck, (1000*1))
+
+  //set stuff to true to compensate for missed time
+  for (const x of channels){
+    x.go = true
+  }
+}
+
+
+
+
+  defaultLoadout();
+
+
+
+
+
