@@ -1,0 +1,1 @@
+Discord bot that listens for newly made cryptos and broadcasts them to a server
